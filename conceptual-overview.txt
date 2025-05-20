@@ -1,0 +1,34 @@
+           +-----------------+
+           |  Log Generator  |   ← Simulates SaaS user activity (Python code)
+           +--------+--------+
+                    |
+                    v
+         +----------+----------+
+         |  Raw Logs Storage   |   ← Local folder or AWS S3
+         +----------+----------+
+                    |
+                    v
+         +----------+----------+
+         |    Airflow DAG      |   ← Schedules and runs ETL steps
+         +---+------+----------+
+             |      |
+     Extract Task   |
+             v      |
+     +-------+-------+          +--------------------+
+     |  Parse & Clean |  -----> |  Transform Logs    |  ← Add errors,session time, etc.
+     +---------------+          +--------------------+
+                                      |
+                                      v
+                              +---------------+
+                              |  Load to DB   |  ← PostgreSQL, BigQuery
+                              +---------------+
+                                      |
+                                      v
+                         +-------------------------+
+                         | Monitoring via Datadog  |
+                         +-------------------------+
+                                      |
+                                      v
+                         +-------------------------+
+                         | Slack Alerts on Failure |
+                         +-------------------------+
