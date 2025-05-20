@@ -28,3 +28,34 @@ Before starting the backend development, follow these steps to set up and activa
 venv/
 ```
 
+
+## 🛠️ Log File Generation with Faker
+
+To simulate log data for backend development, follow these steps:
+
+### 📦 1. Install Faker
+
+Make sure your virtual environment is activated, then run:
+
+```bash
+pip install faker
+```
+
+### 📄 2. Generate Log Files
+
+Run the following script to extract/generate log files:
+
+```bash
+python extract/generator.py
+```
+
+This will create log files in the `/extract/raw_logs/` directory.
+
+### 🚫 3. Update `.gitignore`
+
+To avoid committing generated log files, add the following entry to your `.gitignore`:
+
+```
+/extract/raw_logs/
+```
+
