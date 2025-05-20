@@ -1,4 +1,4 @@
-# extract/log_generator.py
+# extract/generator.py
 
 import os
 import json
