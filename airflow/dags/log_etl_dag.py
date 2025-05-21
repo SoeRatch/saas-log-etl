@@ -7,7 +7,7 @@ import sys
 import os
 
 # Let Airflow find our modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from extract.generator import write_logs
 
