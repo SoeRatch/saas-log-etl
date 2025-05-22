@@ -1,52 +1,45 @@
-# dags/log_etl_dag.py
-
+import sys
+import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-import sys
-import os
 
-# Let Airflow find our modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../etl")))
+# 👇 This allows imports from your 'etl' directory
+sys.path.append('/opt/airflow/etl')
 
-from extract.generator import write_logs
+from extract.log_generator import write_fake_logs
+from transform.session_transformer import transform_logs
+from load.load_to_postgres import load_to_postgres
 
+# Default DAG arguments
 default_args = {
-    "owner": "airflow",
-    "retries": 1,
-    "retry_delay": timedelta(minutes=2)
+    'owner': 'airflow',
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
 }
 
 with DAG(
-    dag_id="saas_log_etl",
+    dag_id='log_etl_pipeline',
     default_args=default_args,
-    description="ETL pipeline for SaaS app logs",
-    start_date=datetime(2025, 5, 20),
-    schedule_interval="@hourly",  # change to "@daily" if needed
+    description='ETL pipeline for simulated SaaS logs',
+    start_date=datetime(2024, 1, 1),
+    schedule_interval='@daily',
     catchup=False
 ) as dag:
 
-    generate_logs = PythonOperator(
-        task_id="generate_logs",
-        python_callable=write_logs,
-        op_kwargs={"num_entries": 100}
+    extract_task = PythonOperator(
+        task_id='extract_logs',
+        python_callable=write_fake_logs
     )
 
-    # Dummy stubs for now — real ones in next steps
-    def transform_logs():
-        print("Transforming logs...")
-
-    def load_data_to_db():
-        print("Loading data to database...")
-
     transform_task = PythonOperator(
-        task_id="transform_logs",
+        task_id='transform_logs',
         python_callable=transform_logs
     )
 
     load_task = PythonOperator(
-        task_id="load_to_db",
-        python_callable=load_data_to_db
+        task_id='load_to_db',
+        python_callable=load_to_postgres
     )
 
-    generate_logs >> transform_task >> load_task
+    extract_task >> transform_task >> load_task
