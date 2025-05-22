@@ -3,18 +3,18 @@ import os
 from datetime import datetime, timezone
 import random
 
-def write_fake_logs():
-    log_dir = "/opt/airflow/data/raw_logs"
-    os.makedirs(log_dir, exist_ok=True)
+def write_fake_logs(output_dir: str, execution_date: str):
+    os.makedirs(output_dir, exist_ok=True)
 
-    filename = f"log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.jsonl"
-    filepath = os.path.join(log_dir, filename)
+    # filename = f"log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.jsonl"
+    filename = f"log_{execution_date}.jsonl"
+    filepath = os.path.join(output_dir, filename)
 
     event_types = ['login', 'logout', 'click', 'view', 'purchase']
     users = [f"user_{i}" for i in range(1, 21)]
 
     with open(filepath, "w") as f:
-        for _ in range(100):  # generate 100 fake events
+        for _ in range(10):  # generate 100 fake events
             log = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "user_id": random.choice(users),

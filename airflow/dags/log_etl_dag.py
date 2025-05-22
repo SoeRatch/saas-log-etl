@@ -18,24 +18,36 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+
 with DAG(
     dag_id='log_etl_pipeline',
     default_args=default_args,
     description='ETL pipeline for simulated SaaS logs',
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2025, 5, 22),
     schedule_interval='@daily',
     catchup=False
 ) as dag:
 
     extract_task = PythonOperator(
         task_id='extract_logs',
-        python_callable=write_fake_logs
+        python_callable=write_fake_logs,
+        op_kwargs={
+            'output_dir': '/opt/airflow/data/raw_logs',
+            'execution_date': '{{ ds }}'  # Airflow renders this as 'YYYY-MM-DD'
+        }
     )
 
     transform_task = PythonOperator(
         task_id='transform_logs',
-        python_callable=transform_logs
+        python_callable=transform_logs,
+        op_kwargs={
+            'input_dir': '/opt/airflow/data/raw_logs',
+            'output_dir': '/opt/airflow/data/processed_logs',
+            'execution_date': '{{ ds }}'
+        },
+        dag=dag,
     )
+
 
     load_task = PythonOperator(
         task_id='load_to_db',
