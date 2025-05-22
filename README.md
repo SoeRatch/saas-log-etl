@@ -1,155 +1,187 @@
 # SaaS Log ETL Pipeline with Apache Airflow
 
-This project simulates an ETL (Extract, Transform, Load) pipeline for SaaS application logs using Apache Airflow and Docker. The pipeline:
+This project simulates an ETL (Extract, Transform, Load) pipeline for SaaS application logs using Apache Airflow, PostgreSQL, and Docker. The pipeline:
 
 1. **Extracts** synthetic user log events (e.g., login, logout, purchase)
 2. **Transforms** them into enriched, readable log entries
-3. **Load** them into a structured storage system (e.g., PostgreSQL)
+3. **Loads** them into a PostgreSQL database
 
+---
 
 ## 🛠️ Project Structure
 
+```
+project-root/
+├── airflow/
+│   ├── dags/
+│   │   └── log_etl_dag.py           # Main Airflow DAG
+│   ├── plugins/
+│   └── logs/
+├── data/
+│   ├── raw_logs/                    # Raw JSONL logs
+│   └── processed_logs/             # Transformed JSONL logs
+├── etl/
+│   ├── extract/
+│   │   └── log_generator.py         # Synthetic log generator
+│   ├── transform/
+│   │   └── session_transformer.py   # Log enricher
+│   └── load/
+│       └── loader.py                # PostgreSQL loader
+├── docker-compose.yaml
+└── README.md
+```
 
+---
 
-## Backend Setup Instructions
+## ⚙️ Technologies Used
 
-Before starting the backend development, follow these steps to set up and activate a virtual environment:
+- 🌀 **Apache Airflow** — DAG scheduling and orchestration
+- 🐳 **Docker Compose** — Local development and service containerization
+- 🐘 **PostgreSQL** — Structured data storage
+- 🐍 **Python** — Custom ETL logic
+- 📁 **JSON Lines (JSONL)** — Log file format
 
-## 🔧 Setting up the Virtual Environment
+---
 
-1. **Create a virtual environment:**
-   ```bash
-   python -m venv venv
-   ```
+## 🧪 How the Pipeline Works
 
-2. **Activate the virtual environment:**
+### ▶️ 1. Extraction (`log_generator.py`)
 
-   - On **Windows**:
-     ```bash
-     venv\Scripts\activate
-     ```
+Generates synthetic SaaS log events (login/logout/purchase) in JSONL format. Logs are timestamped and saved like:
 
-   - On **macOS/Linux**:
-     ```bash
-     source venv/bin/activate
-     ```
+```
+/opt/airflow/data/raw_logs/log_20250522_081657.jsonl
+```
 
-3. Make sure to add the `venv` directory to your `.gitignore` file to avoid committing environment-specific files to version control.
+Each DAG run creates a new log file using UTC time to avoid overwriting.
 
-    - 📄 Example `.gitignore` entry:
-    ```
-    venv/
-    ```
+---
 
+### 🔄 2. Transformation (`session_transformer.py`)
 
-## 🛠️ Log File Generation with Faker
+Parses and enriches raw log events into a structured format:
 
-To simulate log data for backend development, follow these steps:
+- Assigns a log level (`info`, `debug`, `critical`)
+- Adds human-readable messages
+- Preserves metadata: `timestamp`, `user_id`, `session_id`
 
-1. **Install Faker**
+Example output:
 
-    - Make sure your virtual environment is activated, then run:
-      ```bash
-      pip install faker
-      ```
+```json
+{
+  "timestamp": "2025-05-22T08:10:11.411599+00:00",
+  "level": "info",
+  "message": "User user_17 logged out",
+  "user_id": "user_17",
+  "session_id": "session_5361"
+}
+```
 
-2. **Generate Log Files**
+---
 
-    - Run the following script to extract/generate log files:
-    ```bash
-    python etl/extract/log_generator.py
-    ```
+### 🧩 3. Load (`loader.py`)
 
-    This will create log files in the `data/raw_logs/` directory.
+- Reads the transformed logs
+- Ensures the PostgreSQL table `processed_logs` exists
+- Inserts all entries into the database
 
-3. **Update `.gitignore`**
+---
 
-    - To avoid committing generated log files, add the following entry to your `.gitignore`:
-    ```
-    data/raw_logs/
-    ```
+## 🚀 Getting Started
 
+### 1. Clone the Repo
 
+```bash
+git clone https://github.com/SoeRatch/saas-log-etl.git
+cd saas-log-etl
+```
 
-## 🛠️ Setup Airflow with docker
+### 2. Start Docker Services
 
-To simulate log data for backend development, follow these steps:
+```bash
+docker-compose up --build
+```
 
-1. **Create required files and folders**
-    ```bash
-    touch docker-compose.yaml
-    mkdir -p airflow/dags airflow/logs airflow/plugins
-    ```
+### 3. Initialize Airflow (first time only)
 
-2. **Initialize Airflow**
+```bash
+docker compose exec airflow-webserver airflow db init
 
-    - Start Airflow Services (Webserver & Scheduler):
-    The Airflow scheduler executes your tasks on an array of workers
-    ```bash
-    docker compose up airflow-webserver airflow-scheduler --build --detach
-    ```
-    This will spin up the webserver and scheduler containers in detached mode.
-    It also builds the images
-    It will use your docker-compose.yaml at the root
+docker compose exec airflow-webserver airflow users create \
+  --username admin \
+  --firstname First \
+  --lastname Last \
+  --role Admin \
+  --email admin@example.com \
+  --password admin
+```
 
-    -  Initialize Airflow metadata DB:
-    ```bash
-    docker compose exec airflow-webserver airflow db init
-    ```
-    This creates the metadata database (e.g., task instances, DAG run history, etc.).
-    You only need to run this once on first setup (unless you wipe the database).
+Access Airflow at: [http://localhost:8080](http://localhost:8080)
 
-    -  Create admin user:
-    ```
-    docker compose exec airflow-webserver airflow users create \
-    --username admin \
-    --firstname First \
-    --lastname Last \
-    --role Admin \
-    --email admin@example.com \
-    --password admin
+---
 
-    ```
+## 🧪 Triggering the ETL Pipeline
 
-3. **Run Airflow**
-    - Run airflow
-    ```
-    docker compose up
-    ```
+1. Navigate to the Airflow UI
+2. Enable the `log_etl_pipeline` DAG
+3. Trigger it manually (calendar icon)
+4. Watch task logs and validate success
 
-    - Then open your browser and go to:
-    ```
-    http://localhost:8080
-    ```
+---
 
-    - Login with the username and password created.
+## 🗄️ Verifying the Loaded Data
 
-    - Restart airflow
-    ```
-    docker compose down
-    docker compose up -d
-    ```
+Connect to the PostgreSQL DB using a tool like **DBeaver**:
 
-4. **Database setup**
-    Create table inside the PostgreSQL container that's already running via Docker Compose.
+- Host: `localhost`
+- Port: `5432`
+- Database: `airflow`
+- User: `airflow`
+- Password: `airflow`
 
-    - Run this from your terminal:
-    ```
-    docker compose exec postgres psql -U airflow -d airflow
-    ```
+Check the `public.processed_logs` table under the `airflow` schema.
 
-    - Then manually run SQL like:
-    ```
-    CREATE TABLE IF NOT EXISTS processed_logs (
-        id SERIAL PRIMARY KEY,
-        timestamp TIMESTAMPTZ,
-        level VARCHAR(20),
-        message TEXT,
-        user_id VARCHAR(50),
-        session_id VARCHAR(50)
-    );
+---
 
-    ```
+## ✅ PostgreSQL Table Schema
 
+```sql
+CREATE TABLE IF NOT EXISTS processed_logs (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ,
+    level VARCHAR(20),
+    message TEXT,
+    user_id VARCHAR(50),
+    session_id VARCHAR(50)
+);
+```
 
-    
+---
+
+## ✅ Status
+
+- ✅ Extract step complete (fake SaaS logs written daily)
+- ✅ Transform step complete (log level + message enrichment)
+- ✅ Load step complete (PostgreSQL insert + schema creation)
+
+---
+
+## 📦 Future Improvements
+
+- Add data validation & schema enforcement
+- Add automated tests for each ETL step
+- Introduce partitioning/indexing for faster queries
+- Parameterize configs using `.env` or Airflow Variables
+- Integrate with cloud data warehouse (e.g., BigQuery, Redshift)
+
+---
+
+## 👨‍💻 Author
+
+[SoeRatch](https://github.com/SoeRatch)
+
+---
+
+## 📜 License
+
+MIT License
