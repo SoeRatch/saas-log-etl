@@ -3,3 +3,4 @@ __pycache__/
 
 etl/extract/raw_logs/
 data/raw_logs/
+airflow/logs/
