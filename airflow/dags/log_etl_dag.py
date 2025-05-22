@@ -9,7 +9,7 @@ sys.path.append('/opt/airflow/etl')
 
 from extract.log_generator import write_fake_logs
 from transform.session_transformer import transform_logs
-from load.load_to_postgres import load_to_postgres
+from load.load_to_postgres import load_logs_to_postgres
 
 # Default DAG arguments
 default_args = {
@@ -25,7 +25,8 @@ with DAG(
     description='ETL pipeline for simulated SaaS logs',
     start_date=datetime(2025, 5, 22),
     schedule_interval='@daily',
-    catchup=False
+    catchup=False,
+    tags=['etl'],
 ) as dag:
 
     extract_task = PythonOperator(
@@ -48,10 +49,15 @@ with DAG(
         dag=dag,
     )
 
-
     load_task = PythonOperator(
-        task_id='load_to_db',
-        python_callable=load_to_postgres
+        task_id='load_logs_to_postgres',
+        python_callable=load_logs_to_postgres,
+        op_kwargs={
+            'output_dir': '/opt/airflow/data/processed_logs',
+            'execution_date': '{{ ds }}'
+        },
+        dag=dag,
     )
 
+    # Task dependencies
     extract_task >> transform_task >> load_task

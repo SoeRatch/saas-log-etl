@@ -1,4 +1,17 @@
-# Backend Setup Instructions
+# SaaS Log ETL Pipeline with Apache Airflow
+
+This project simulates an ETL (Extract, Transform, Load) pipeline for SaaS application logs using Apache Airflow and Docker. The pipeline:
+
+1. **Extracts** synthetic user log events (e.g., login, logout, purchase)
+2. **Transforms** them into enriched, readable log entries
+3. **Load** them into a structured storage system (e.g., PostgreSQL)
+
+
+## 🛠️ Project Structure
+
+
+
+## Backend Setup Instructions
 
 Before starting the backend development, follow these steps to set up and activate a virtual environment:
 
@@ -110,6 +123,33 @@ To simulate log data for backend development, follow these steps:
     ```
 
     - Login with the username and password created.
+
+    - Restart airflow
+    ```
+    docker compose down
+    docker compose up -d
+    ```
+
+4. **Database setup**
+    Create table inside the PostgreSQL container that's already running via Docker Compose.
+
+    - Run this from your terminal:
+    ```
+    docker compose exec postgres psql -U airflow -d airflow
+    ```
+
+    - Then manually run SQL like:
+    ```
+    CREATE TABLE IF NOT EXISTS processed_logs (
+        id SERIAL PRIMARY KEY,
+        timestamp TIMESTAMPTZ,
+        level VARCHAR(20),
+        message TEXT,
+        user_id VARCHAR(50),
+        session_id VARCHAR(50)
+    );
+
+    ```
 
 
     
