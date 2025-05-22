@@ -8,23 +8,23 @@ This project simulates an ETL (Extract, Transform, Load) pipeline for SaaS appli
 
 ---
 
-## 🛠️ Project Structure
+## Project Structure
 
 ```
 project-root/
 ├── airflow/
 │   ├── dags/
-│   │   └── log_etl_dag.py           # Main Airflow DAG
+│   │   └── log_etl_dag.py          # Airflow DAG
 │   ├── plugins/
 │   └── logs/
 ├── data/
-│   ├── raw_logs/                    # Raw JSONL logs
+│   ├── raw_logs/                   # Raw JSONL logs
 │   └── processed_logs/             # Transformed JSONL logs
 ├── etl/
 │   ├── extract/
-│   │   └── log_generator.py         # Synthetic log generator
+│   │   └── log_generator.py         # log generator
 │   ├── transform/
-│   │   └── session_transformer.py   # Log enricher
+│   │   └── session_transformer.py   # Log transformer
 │   └── load/
 │       └── loader.py                # PostgreSQL loader
 ├── docker-compose.yaml
@@ -33,19 +33,19 @@ project-root/
 
 ---
 
-## ⚙️ Technologies Used
+## Technologies Used
 
-- 🌀 **Apache Airflow** — DAG scheduling and orchestration
-- 🐳 **Docker Compose** — Local development and service containerization
-- 🐘 **PostgreSQL** — Structured data storage
-- 🐍 **Python** — Custom ETL logic
-- 📁 **JSON Lines (JSONL)** — Log file format
+- **Apache Airflow** — DAG scheduling and orchestration
+- **Docker Compose** — Local development and service containerization
+- **PostgreSQL** — Structured data storage
+- **Python** — Custom ETL logic
+- **JSON Lines (JSONL)** — Log file format
 
 ---
 
-## 🧪 How the Pipeline Works
+## How the Pipeline Works
 
-### ▶️ 1. Extraction (`log_generator.py`)
+### 1. Extraction (`log_generator.py`)
 
 Generates synthetic SaaS log events (login/logout/purchase) in JSONL format. Logs are timestamped and saved like:
 
@@ -57,7 +57,7 @@ Each DAG run creates a new log file using UTC time to avoid overwriting.
 
 ---
 
-### 🔄 2. Transformation (`session_transformer.py`)
+### 2. Transformation (`session_transformer.py`)
 
 Parses and enriches raw log events into a structured format:
 
@@ -79,7 +79,7 @@ Example output:
 
 ---
 
-### 🧩 3. Load (`loader.py`)
+### 3. Load (`loader.py`)
 
 - Reads the transformed logs
 - Ensures the PostgreSQL table `processed_logs` exists
@@ -87,7 +87,7 @@ Example output:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repo
 
@@ -120,7 +120,7 @@ Access Airflow at: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## 🧪 Triggering the ETL Pipeline
+## Triggering the ETL Pipeline
 
 1. Navigate to the Airflow UI
 2. Enable the `log_etl_pipeline` DAG
@@ -129,7 +129,7 @@ Access Airflow at: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## 🗄️ Verifying the Loaded Data
+## Verifying the Loaded Data
 
 Connect to the PostgreSQL DB using a tool like **DBeaver**:
 
@@ -143,7 +143,7 @@ Check the `public.processed_logs` table under the `airflow` schema.
 
 ---
 
-## ✅ PostgreSQL Table Schema
+## PostgreSQL Table Schema
 
 ```sql
 CREATE TABLE IF NOT EXISTS processed_logs (
@@ -158,15 +158,15 @@ CREATE TABLE IF NOT EXISTS processed_logs (
 
 ---
 
-## ✅ Status
+## Status
 
-- ✅ Extract step complete (fake SaaS logs written daily)
-- ✅ Transform step complete (log level + message enrichment)
-- ✅ Load step complete (PostgreSQL insert + schema creation)
+- Extract step complete (fake SaaS logs written daily)
+- Transform step complete (log level + message enrichment)
+- Load step complete (PostgreSQL insert + schema creation)
 
 ---
 
-## 📦 Future Improvements
+## Future Improvements
 
 - Add data validation & schema enforcement
 - Add automated tests for each ETL step
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS processed_logs (
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 [SoeRatch](https://github.com/SoeRatch)
 
