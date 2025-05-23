@@ -2,17 +2,17 @@ import os
 import json
 import psycopg2
 from psycopg2.extras import execute_values
-import logging
+from common.db_config import get_db_config
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+import logging
+from common.logging_config import configure_logging
+from common.file_utils import get_processed_log_path
+
+configure_logging()
 
 
 def load_logs_to_postgres(output_dir, execution_date):
-    filename = f"processed_{execution_date}.jsonl"
-    file_path = os.path.join(output_dir, filename)
+    file_path = get_processed_log_path(output_dir, execution_date)
 
     logging.info(f"Looking for file at: {file_path}")
 
@@ -39,13 +39,7 @@ def load_logs_to_postgres(output_dir, execution_date):
     cursor = None
     try:
         # Database connection
-        conn = psycopg2.connect(
-            dbname="airflow",
-            user="airflow",
-            password="airflow",
-            host="postgres",
-            port="5432"
-        )
+        conn = psycopg2.connect(**get_db_config())
         cursor = conn.cursor()
 
         # Create table if not exists

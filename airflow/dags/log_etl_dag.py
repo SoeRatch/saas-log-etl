@@ -5,7 +5,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 
-# 👇 This allows imports from your 'etl' directory
+#  This allows imports from 'etl' directory
 sys.path.append('/opt/airflow/etl')
 
 from extract.log_generator import write_fake_logs

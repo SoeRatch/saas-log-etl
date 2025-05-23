@@ -4,10 +4,10 @@ from datetime import datetime, timezone
 import random
 
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+from common.logging_config import configure_logging
+from common.file_utils import get_raw_log_path
+
+configure_logging()
 
 
 def write_fake_logs(output_dir: str, execution_date: str):
@@ -18,9 +18,7 @@ def write_fake_logs(output_dir: str, execution_date: str):
         logging.error(f"Failed to create output directory '{output_dir}': {e}")
         return
 
-    # filename = f"log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.jsonl"
-    filename = f"log_{execution_date}.jsonl"
-    filepath = os.path.join(output_dir, filename)
+    filepath = get_raw_log_path(output_dir, execution_date)
 
     event_types = ['login', 'logout', 'click', 'view', 'purchase']
     users = [f"user_{i}" for i in range(1, 21)]

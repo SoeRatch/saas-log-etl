@@ -1,11 +1,10 @@
 import os
 import json
 import logging
+from common.logging_config import configure_logging
+from common.file_utils import get_raw_log_path,get_processed_log_path
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+configure_logging()
 
 
 def map_event_to_level(event):
@@ -34,8 +33,8 @@ def generate_message(log):
 
 
 def transform_logs(input_dir, output_dir, execution_date: str):
-    input_file = os.path.join(input_dir, f"log_{execution_date}.jsonl")
-    output_file = os.path.join(output_dir, f"processed_{execution_date}.jsonl")
+    input_file = get_raw_log_path(input_dir, execution_date)
+    output_file = get_processed_log_path(output_dir, execution_date)
 
     # Read raw logs
     try:

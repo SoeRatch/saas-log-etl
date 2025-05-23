@@ -23,12 +23,14 @@ services:
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
       AIRFLOW__WEBSERVER__WORKERS: 2
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      PYTHONPATH: /opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
       - ./etl:/opt/airflow/etl
       - ./data:/opt/airflow/data
+      - ./common:/opt/airflow/common
     ports:
       - "8080:8080"
     command: webserver
@@ -41,12 +43,14 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      PYTHONPATH: /opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
       - ./etl:/opt/airflow/etl
       - ./data:/opt/airflow/data
+      - ./common:/opt/airflow/common
     command: scheduler
 
 volumes:
