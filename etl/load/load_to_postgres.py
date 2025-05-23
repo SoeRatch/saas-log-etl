@@ -3,7 +3,12 @@ import json
 import psycopg2
 from psycopg2.extras import execute_values
 import logging
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
 
 def load_logs_to_postgres(output_dir, execution_date):
     filename = f"processed_{execution_date}.jsonl"
@@ -66,10 +71,10 @@ def load_logs_to_postgres(output_dir, execution_date):
             conn.commit()
             logging.info(f"Loaded {len(values)} log records into PostgreSQL.")
         except Exception as e:
-            logging.info(f"Error loading to PostgreSQL: {e}")
+            logging.error("Error during to PostgreSQL: %s", e)
 
     except Exception as e:
-        logging.info(f"Error during loading logs: {e}")
+        logging.error("Error during loading logs: %s", e)
         if conn:
             conn.rollback()
     finally:

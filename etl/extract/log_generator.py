@@ -2,8 +2,13 @@ import json
 import os
 from datetime import datetime, timezone
 import random
+
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
 
 def write_fake_logs(output_dir: str, execution_date: str):
     os.makedirs(output_dir, exist_ok=True)

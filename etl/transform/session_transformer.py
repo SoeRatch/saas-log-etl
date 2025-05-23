@@ -1,7 +1,12 @@
 import os
 import json
 import logging
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
 
 def map_event_to_level(event):
     if event in ["logout", "login"]:
