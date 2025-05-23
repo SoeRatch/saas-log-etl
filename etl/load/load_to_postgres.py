@@ -7,6 +7,7 @@ from common.db_config import get_db_config
 import logging
 from common.logging_config import configure_logging
 from common.file_utils import get_processed_log_path
+from common.validation_utils import filter_valid_logs
 
 configure_logging()
 
@@ -36,6 +37,8 @@ def load_logs_to_postgres(output_dir, execution_date):
     
 
     # Step 2: Validate logs before processing
+    logs, invalid_logs = filter_valid_logs(logs)
+    logging.info(f"Valid logs: {len(logs)}, Invalid logs: {len(invalid_logs)}")
 
 
     # Step 3: Database operation
