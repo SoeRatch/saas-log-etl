@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime, timezone
 import random
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def write_fake_logs(output_dir: str, execution_date: str):
     os.makedirs(output_dir, exist_ok=True)
@@ -23,4 +25,4 @@ def write_fake_logs(output_dir: str, execution_date: str):
             }
             f.write(json.dumps(log) + "\n")
 
-    print(f"Wrote logs to {filepath}")
+    logging.info(f"Wrote logs to {filepath}")

@@ -2,22 +2,24 @@ import os
 import json
 import psycopg2
 from psycopg2.extras import execute_values
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def load_logs_to_postgres(output_dir, execution_date):
     filename = f"processed_{execution_date}.jsonl"
     file_path = os.path.join(output_dir, filename)
 
-    print(f"📂 Looking for file at: {file_path}")
+    logging.info(f"Looking for file at: {file_path}")
 
     if not os.path.exists(file_path):
-        print(f"No processed log file found at {file_path}")
+        logging.info(f"No processed log file found at {file_path}")
         return
 
     with open(file_path, "r") as f:
         logs = [json.loads(line) for line in f if line.strip()]
 
     if not logs:
-        print("No logs to load.")
+        logging.info("No logs to load.")
         return
 
     conn = None
@@ -62,12 +64,12 @@ def load_logs_to_postgres(output_dir, execution_date):
         try:
             execute_values(cursor, insert_query, values)
             conn.commit()
-            print(f"✅ Loaded {len(values)} log records into PostgreSQL.")
+            logging.info(f"Loaded {len(values)} log records into PostgreSQL.")
         except Exception as e:
-            print(f"❌ Error loading to PostgreSQL: {e}")
+            logging.info(f"Error loading to PostgreSQL: {e}")
 
     except Exception as e:
-        print(f"Error during loading logs: {e}")
+        logging.info(f"Error during loading logs: {e}")
         if conn:
             conn.rollback()
     finally:

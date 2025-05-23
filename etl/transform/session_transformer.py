@@ -1,7 +1,7 @@
-# etl/transform/session_transformer.py
-
 import os
 import json
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def map_event_to_level(event):
     if event in ["logout", "login"]:
@@ -52,4 +52,5 @@ def transform_logs(input_dir, output_dir, execution_date: str):
         for t in transformed:
             outfile.write(json.dumps(t) + "\n")
     
-    print(f"Transformed logs written to {output_file}")
+    logging.info(f"Transformed logs written to {output_file}")
+    
