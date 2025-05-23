@@ -145,17 +145,37 @@ Check the `public.processed_logs` table under the `airflow` schema.
 
 ## PostgreSQL Table Schema
 
-```sql
-CREATE TABLE IF NOT EXISTS processed_logs (
-    id SERIAL PRIMARY KEY,
-    timestamp TIMESTAMPTZ,
-    level VARCHAR(20),
-    message TEXT,
-    user_id VARCHAR(50),
-    session_id VARCHAR(50)
-);
-```
+This project creates the following tables automatically during load:
 
+1. **processed_logs**  
+   Stores the transformed logs.
+     ```sql
+      CREATE TABLE IF NOT EXISTS processed_logs (
+          id SERIAL PRIMARY KEY,
+          timestamp TIMESTAMPTZ,
+          level VARCHAR(20),
+          message TEXT,
+          user_id VARCHAR(50),
+          session_id VARCHAR(50),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          CONSTRAINT uniq_log_event UNIQUE (timestamp, user_id, session_id)
+      )
+      ```
+
+2. **etl_runs**  
+   Tracks metadata for each ETL run including execution timestamp, load status, and row count.
+      ```sql
+      CREATE TABLE IF NOT EXISTS etl_runs (
+            id SERIAL PRIMARY KEY,
+            execution_date TIMESTAMPTZ,
+            records_loaded INTEGER,
+            status VARCHAR(20),
+            message TEXT,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      ```
+  No manual table setup is required. Both tables are created if they do not exist.
+  
 ---
 
 ## Status

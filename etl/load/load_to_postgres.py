@@ -20,7 +20,7 @@ def load_logs_to_postgres(output_dir, execution_date):
         logging.warning(f"No processed log file found at {file_path}")
         return
 
-    # Read transformed logs
+    # Step 1: Read transformed logs
     try:
         with open(file_path, "r") as f:
             logs = [json.loads(line) for line in f if line.strip()]
@@ -33,8 +33,12 @@ def load_logs_to_postgres(output_dir, execution_date):
     if not logs:
         logging.info("No logs to load.")
         return
+    
 
-    # Database operation
+    # Step 2: Validate logs before processing
+
+
+    # Step 3: Database operation
     conn = None
     cursor = None
     try:
@@ -43,7 +47,7 @@ def load_logs_to_postgres(output_dir, execution_date):
         cursor = conn.cursor()
 
 
-        # Create table if not exists
+        # Create processed_logs table if not exists
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS processed_logs (
                 id SERIAL PRIMARY KEY,
@@ -54,6 +58,18 @@ def load_logs_to_postgres(output_dir, execution_date):
                 session_id VARCHAR(50),
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 CONSTRAINT uniq_log_event UNIQUE (timestamp, user_id, session_id)
+            )
+        """)
+
+        # Create etl_runs table if not exists
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS etl_runs (
+                id SERIAL PRIMARY KEY,
+                execution_date TIMESTAMPTZ,
+                records_loaded INTEGER,
+                status VARCHAR(20),
+                message TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
 
@@ -71,6 +87,8 @@ def load_logs_to_postgres(output_dir, execution_date):
         except KeyError as e:
             logging.error(f"Missing expected log field: {e}")
             return
+        
+        logging.info(f"Preparing to load {len(values)} records from {file_path}")
 
         #  If a row already exists with the same (timestamp, user_id, session_id), it will update the level and message fields.
         insert_query = """
@@ -86,10 +104,24 @@ def load_logs_to_postgres(output_dir, execution_date):
         try:
             execute_values(cursor, insert_query, values)
             conn.commit()
-            logging.info(f"Loaded {len(values)} log records into PostgreSQL.")
+            logging.info(f"Successfully Loaded {len(values)} log records into PostgreSQL.")
+
+            # Insert ETL run metadata
+            cursor.execute("""
+                INSERT INTO etl_runs (execution_date, records_loaded, status, message)
+                VALUES (%s, %s, %s, %s)
+            """, (execution_date, len(values), 'success', 'Log load successful'))
+            conn.commit()
         except Exception as e:
             conn.rollback()
             logging.error("Error inserting records into PostgreSQL: %s", e)
+
+            # Insert ETL run metadata
+            cursor.execute("""
+                INSERT INTO etl_runs (execution_date, records_loaded, status, message)
+                VALUES (%s, %s, %s, %s)
+            """, (execution_date, 0, 'failed', str(e)))
+            conn.commit()
 
     except Exception as e:
         logging.error("Error during database operations: %s", e)
