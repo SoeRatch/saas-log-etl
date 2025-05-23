@@ -42,6 +42,7 @@ def load_logs_to_postgres(output_dir, execution_date):
         conn = psycopg2.connect(**get_db_config())
         cursor = conn.cursor()
 
+
         # Create table if not exists
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS processed_logs (
@@ -50,7 +51,9 @@ def load_logs_to_postgres(output_dir, execution_date):
                 level VARCHAR(20),
                 message TEXT,
                 user_id VARCHAR(50),
-                session_id VARCHAR(50)
+                session_id VARCHAR(50),
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                CONSTRAINT uniq_log_event UNIQUE (timestamp, user_id, session_id)
             )
         """)
 
@@ -68,11 +71,15 @@ def load_logs_to_postgres(output_dir, execution_date):
         except KeyError as e:
             logging.error(f"Missing expected log field: {e}")
             return
-        
 
+        #  If a row already exists with the same (timestamp, user_id, session_id), it will update the level and message fields.
         insert_query = """
             INSERT INTO processed_logs (timestamp, level, message, user_id, session_id)
             VALUES %s
+            ON CONFLICT (timestamp, user_id, session_id) DO UPDATE
+            SET 
+                level = EXCLUDED.level,
+                message = EXCLUDED.message
         """
 
         # Bulk insert
