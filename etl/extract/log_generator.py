@@ -11,7 +11,12 @@ logging.basicConfig(
 
 
 def write_fake_logs(output_dir: str, execution_date: str):
-    os.makedirs(output_dir, exist_ok=True)
+
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+    except Exception as e:
+        logging.error(f"Failed to create output directory '{output_dir}': {e}")
+        return
 
     # filename = f"log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.jsonl"
     filename = f"log_{execution_date}.jsonl"
@@ -20,14 +25,21 @@ def write_fake_logs(output_dir: str, execution_date: str):
     event_types = ['login', 'logout', 'click', 'view', 'purchase']
     users = [f"user_{i}" for i in range(1, 21)]
 
-    with open(filepath, "w") as f:
-        for _ in range(10):  # generate 100 fake events
-            log = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "user_id": random.choice(users),
-                "event": random.choice(event_types),
-                "session_id": f"session_{random.randint(1000, 9999)}"
-            }
-            f.write(json.dumps(log) + "\n")
-
+    try:
+        with open(filepath, "w") as f:
+            for _ in range(10):  # generate 10 fake events
+                try:
+                    log = {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "user_id": random.choice(users),
+                        "event": random.choice(event_types),
+                        "session_id": f"session_{random.randint(1000, 9999)}"
+                    }
+                    f.write(json.dumps(log) + "\n")
+                except Exception as e:
+                    logging.warning(f"Skipping a log due to error: {e}")
+    except Exception as e:
+        logging.error(f"Failed to write log file at '{filepath}': {e}")
+        return
+    
     logging.info(f"Wrote logs to {filepath}")
