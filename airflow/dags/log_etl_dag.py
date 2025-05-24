@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from slack_alert import slack_alert_fn
 
 
 #  This allows imports from 'etl' directory
@@ -17,6 +18,8 @@ default_args = {
     'owner': 'airflow',
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
+    'depends_on_past': False,
+    'on_failure_callback': slack_alert_fn,
 }
 
 
