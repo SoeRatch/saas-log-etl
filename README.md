@@ -138,7 +138,36 @@ This enables downstream use cases such as:
    cd saas-log-etl
    ```
 
-2. **Start Docker Services**:
+2. **Create the `.env` File**:
+
+   Create a `.env` file in the root directory with the following environment variables:
+
+   ```env
+   # PostgreSQL
+   POSTGRES_USER=airflow
+   POSTGRES_PASSWORD=airflow
+   POSTGRES_DB=airflow
+   DB_HOST=postgres
+   DB_PORT=5432
+   DB_NAME=airflow
+   DB_USER=airflow
+   DB_PASSWORD=airflow
+
+   # Airflow
+   AIRFLOW__CORE__EXECUTOR=LocalExecutor
+   AIRFLOW__CORE__FERNET_KEY=
+   AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+   AIRFLOW__WEBSERVER__WORKERS=2
+   AIRFLOW__CORE__LOAD_EXAMPLES=false
+   PYTHONPATH=/opt/airflow
+
+   ```
+
+   > **Note**: These credentials are for local development only. Change them for production environments and avoid committing `.env` files with secrets to git.
+
+
+
+3. **Start Docker Services**:
 
    On first run or after making changes to dependencies:
    ```bash
@@ -150,7 +179,7 @@ This enables downstream use cases such as:
    docker compose up -d
    ```
 
-3. **Initialize Airflow (first time only):**
+4. **Initialize Airflow (first time only):**
 
    ```bash
    docker compose exec airflow-webserver airflow db init
@@ -175,7 +204,7 @@ This enables downstream use cases such as:
 
    > **Note**: These credentials are for local development only. Update them accordingly for production use.
 
-4. **Access Airflow UI**:
+5. **Access Airflow UI**:
 
    Open [http://localhost:8080](http://localhost:8080) in your browser.
 
