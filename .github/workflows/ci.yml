@@ -6,6 +6,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DB_NAME: airflow
+      DB_USER: airflow
+      DB_PASSWORD: airflow
+      DB_HOST: localhost
+      DB_PORT: 5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
