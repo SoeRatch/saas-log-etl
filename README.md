@@ -142,12 +142,12 @@ This enables downstream use cases such as:
 
    On first run or after making changes to dependencies:
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 
    On subsequent runs, you can just start the containers:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 3. **Initialize Airflow (first time only):**

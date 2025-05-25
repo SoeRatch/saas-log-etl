@@ -2,9 +2,9 @@ import os
 
 def get_db_config():
     return {
-        "dbname": os.getenv("DB_NAME", "airflow"),
-        "user": os.getenv("DB_USER", "airflow"),
-        "password": os.getenv("DB_PASSWORD", "airflow"),
-        "host": os.getenv("DB_HOST", "postgres"),
-        "port": os.getenv("DB_PORT", "5432"),
+        "dbname": os.environ["DB_NAME"],
+        "user": os.environ["DB_USER"],
+        "password": os.environ["DB_PASSWORD"],
+        "host": os.environ["DB_HOST"],
+        "port": os.environ["DB_PORT"],
     }
