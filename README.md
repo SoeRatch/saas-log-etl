@@ -140,30 +140,13 @@ This enables downstream use cases such as:
 
 2. **Create the `.env` File**:
 
-   Create a `.env` file in the root directory with the following environment variables:
+   Copy the provided `.env.example` file and update it with your local environment credentials:
 
-   ```env
-   # PostgreSQL
-   POSTGRES_USER=airflow
-   POSTGRES_PASSWORD=airflow
-   POSTGRES_DB=airflow
-   DB_HOST=postgres
-   DB_PORT=5432
-   DB_NAME=airflow
-   DB_USER=airflow
-   DB_PASSWORD=airflow
-
-   # Airflow
-   AIRFLOW__CORE__EXECUTOR=LocalExecutor
-   AIRFLOW__CORE__FERNET_KEY=
-   AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
-   AIRFLOW__WEBSERVER__WORKERS=2
-   AIRFLOW__CORE__LOAD_EXAMPLES=false
-   PYTHONPATH=/opt/airflow
-
+   ```bash
+   cp .env.example .env
    ```
 
-   > **Note**: These credentials are for local development only. Change them for production environments and avoid committing `.env` files with secrets to git.
+   > **Note**: Never commit the `.env` file to version control. It should be ignored in `.gitignore`.
 
 
 
